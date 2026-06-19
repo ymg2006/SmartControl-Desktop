@@ -1,0 +1,49 @@
+version: 0.1.{build}
+
+image: Visual Studio 2026
+
+configuration: Release
+platform: x64
+
+environment:
+  QT_VERSION: 6.8.3
+  QT_ARCH: win64_msvc2022_64
+  QT_ROOT: C:\QtAqt
+  QTDIR: C:\QtAqt\6.8.3\msvc2022_64
+  CMAKE_PREFIX_PATH: C:\QtAqt\6.8.3\msvc2022_64
+  VCVARS64: C:\Program Files\Microsoft Visual Studio\18\Community\VC\Auxiliary\Build\vcvars64.bat
+
+install:
+  - cmd: py -3 -m pip install --upgrade pip
+  - cmd: py -3 -m pip install aqtinstall
+  - cmd: py -3 -m aqt install-qt windows desktop %QT_VERSION% %QT_ARCH% --outputdir %QT_ROOT% -m qt5compat qtconnectivity qtmultimedia qtquick3d qtquicktimeline qtshadertools qtserialport
+  - cmd: dir %QTDIR%
+  - cmd: dir %QTDIR%\bin
+  - cmd: cmake --version
+  - cmd: ninja --version
+
+build_script:
+  - cmd: set PATH=%QTDIR%\bin;%PATH% && call "%VCVARS64%" && where cl && cmake -S . -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="%CMAKE_PREFIX_PATH%"
+  - cmd: set PATH=%QTDIR%\bin;%PATH% && call "%VCVARS64%" && cmake --build build --config Release --parallel
+
+after_build:
+  - cmd: set PATH=%QTDIR%\bin;%PATH% && dir build /s
+  - cmd: set PATH=%QTDIR%\bin;%PATH% && powershell -NoProfile -ExecutionPolicy Bypass -Command "$exe = Get-ChildItem build -Recurse -Filter *.exe | Select-Object -First 1; if ($exe) { & windeployqt --release --qmldir . $exe.FullName } else { throw 'No exe found in build folder' }"
+  - cmd: if not exist artifacts mkdir artifacts
+  - cmd: powershell -NoProfile -ExecutionPolicy Bypass -Command "Compress-Archive -Path build\* -DestinationPath artifacts\SmartControl-Desktop-win64.zip -Force"
+
+test: off
+
+artifacts:
+  - path: artifacts\SmartControl-Desktop-win64.zip
+    name: SmartControl-Desktop-win64
+
+deploy:
+  - provider: GitHub
+    release: SmartControl-Desktop-v$(APPVEYOR_BUILD_VERSION)
+    description: Release description
+    auth_token:
+      secure: 5ZaT9wKNoENOi2va55xzYo5MQyHlqRyQr71DFBw6A7ovfj0CBwa20gQrl13IjbqX
+    artifact: /.*\.zip/
+    draft: false
+    prerelease: false
