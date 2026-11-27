@@ -118,17 +118,6 @@ void AppController::createTrayIcon()
     });
 }
 
-void AppController::showTrayMessageOnce()
-{
-    if (m_trayMessageShown || !m_trayIcon)
-        return;
-    m_trayMessageShown = true;
-    m_trayIcon->showMessage(tr("Smart Control Desktop"),
-                            tr("The app is still running in the system tray."),
-                            QSystemTrayIcon::Information,
-                            2500);
-}
-
 void AppController::showWindowFromQml()
 {
     emit showWindowRequested();

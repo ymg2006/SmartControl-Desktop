@@ -22,7 +22,6 @@ ApplicationWindow {
         if (appController.minimizeToTray && appController.trayAvailable && !appController.quitting) {
             close.accepted = false;
             mainWindow.hide();
-            appController.showTrayMessageOnce();
         }
     }
 
@@ -130,8 +129,6 @@ ApplicationWindow {
     }
 
     Component.onCompleted: {
-        if (appController.startMinimized)
-            appController.showTrayMessageOnce();
         if (mainWindow.width < mainWindow.minimumWidth)
             mainWindow.width = mainWindow.minimumWidth;
         if (mainWindow.height < mainWindow.minimumHeight)

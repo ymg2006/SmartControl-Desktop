@@ -31,7 +31,6 @@ public:
     bool startMinimized() const;
     bool quitting() const;
 
-    Q_INVOKABLE void showTrayMessageOnce();
     Q_INVOKABLE void showWindowFromQml();
     Q_INVOKABLE void quitApplication();
 
@@ -51,7 +50,6 @@ private:
     bool m_minimizeToTray = true;
     bool m_autostartEnabled = false;
     bool m_quitting = false;
-    bool m_trayMessageShown = false;
     QSystemTrayIcon *m_trayIcon = nullptr;
     QMenu *m_trayMenu = nullptr;
     QAction *m_restoreAction = nullptr;
